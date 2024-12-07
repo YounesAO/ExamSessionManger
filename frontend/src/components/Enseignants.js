@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
@@ -19,18 +19,13 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
     dispense: false,
   });
 
-  useEffect(() => {
-    if (departementName) {
-      fetchEnseignants();
-    }
-  }, [departementName]); // Add departementName as dependency
-
-  const fetchEnseignants = async () => {
+  const fetchEnseignants = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      // Modified to fetch enseignants by department name
-      const response = await axios.get(`http://localhost:8088/enseignants/search/departement?departementName=${departementName}`);
+      const response = await axios.get(
+        `http://localhost:8088/enseignants/search/departement?departementName=${departementName}`
+      );
       setEnseignants(response.data);
     } catch (err) {
       console.error("Error fetching enseignants:", err);
@@ -38,11 +33,15 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [departementName]);
 
-  const handleSearch = (e) => {
-    setSearchQuery(e.target.value.toLowerCase());
-  };
+  useEffect(() => {
+    if (departementName) {
+      fetchEnseignants();
+    }
+  }, [departementName, fetchEnseignants]);
+
+  const handleSearch = (e) => setSearchQuery(e.target.value.toLowerCase());
 
   const handleDialogOpen = (enseignant = null) => {
     setEditMode(!!enseignant);
@@ -54,7 +53,7 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
         email: "",
         phoneNumber: "",
         dispense: false,
-        departement: { id: departementId } // Add department ID by default for new entries
+        departement: { id: departementId },
       }
     );
     setIsDialogOpen(true);
@@ -78,9 +77,9 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
     try {
       const enseignantData = {
         ...currentEnseignant,
-        departement: { id: departementId }
+        departement: { id: departementId },
       };
-      
+
       if (editMode) {
         await axios.put(
           `http://localhost:8088/enseignants/${currentEnseignant.id}`,
@@ -198,54 +197,50 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
           </div>
         </div>
       )}
-
       {isDialogOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-[80%] max-w-md p-6">
             <h2 className="text-xl font-bold mb-4">
               {editMode ? "Edit Instructor" : "Add Instructor"}
             </h2>
-            <form onSubmit={handleSave} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium mb-1">First Name:</label>
+            <form onSubmit={handleSave}>
+              <div className="mb-4">
+                <label className="block text-gray-700">First Name</label>
                 <input
                   type="text"
                   value={currentEnseignant.firstName}
                   onChange={(e) =>
                     setCurrentEnseignant({ ...currentEnseignant, firstName: e.target.value })
                   }
-                  required
-                  className="border rounded-md w-full px-3 py-2"
+                  className="border rounded-md w-full px-4 py-2"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Last Name:</label>
+              <div className="mb-4">
+                <label className="block text-gray-700">Last Name</label>
                 <input
                   type="text"
                   value={currentEnseignant.lastName}
                   onChange={(e) =>
                     setCurrentEnseignant({ ...currentEnseignant, lastName: e.target.value })
                   }
-                  required
-                  className="border rounded-md w-full px-3 py-2"
+                  className="border rounded-md w-full px-4 py-2"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Email:</label>
+              <div className="mb-4">
+                <label className="block text-gray-700">Email</label>
                 <input
                   type="email"
                   value={currentEnseignant.email}
                   onChange={(e) =>
                     setCurrentEnseignant({ ...currentEnseignant, email: e.target.value })
                   }
-                  required
-                  className="border rounded-md w-full px-3 py-2"
+                  className="border rounded-md w-full px-4 py-2"
                 />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Phone:</label>
+              <div className="mb-4">
+                <label className="block text-gray-700">Phone Number</label>
                 <input
-                  type="tel"
+                  type="text"
                   value={currentEnseignant.phoneNumber}
                   onChange={(e) =>
                     setCurrentEnseignant({
@@ -253,29 +248,25 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
                       phoneNumber: e.target.value,
                     })
                   }
-                  required
-                  className="border rounded-md w-full px-3 py-2"
+                  className="border rounded-md w-full px-4 py-2"
                 />
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="mb-4 flex items-center">
                 <input
                   type="checkbox"
                   checked={currentEnseignant.dispense}
                   onChange={(e) =>
-                    setCurrentEnseignant({
-                      ...currentEnseignant,
-                      dispense: e.target.checked,
-                    })
+                    setCurrentEnseignant({ ...currentEnseignant, dispense: e.target.checked })
                   }
-                  className="form-checkbox"
+                  className="mr-2"
                 />
-                <label className="text-sm font-medium">Dispense</label>
+                <label className="text-gray-700">Dispense</label>
               </div>
-              <div className="text-right">
+              <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={handleDialogClose}
-                  className="px-4 py-2 mr-2 border border-gray-300 rounded-md"
+                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
                 >
                   Cancel
                 </button>
@@ -283,7 +274,7 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
                   type="submit"
                   className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
                 >
-                  {editMode ? "Save Changes" : "Add Instructor"}
+                  Save
                 </button>
               </div>
             </form>

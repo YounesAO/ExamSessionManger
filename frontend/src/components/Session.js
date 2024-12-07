@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
 const Session = () => {
@@ -155,12 +155,12 @@ const Session = () => {
           <div className="bg-white rounded-lg w-[80%] max-w-lg p-6 shadow-lg">
             <div className="flex justify-between items-center mb-6">
               <h2 className="text-xl font-semibold">Ajouter Session</h2>
-              <button 
-  onClick={() => setIsDialogOpen(false)} 
-  className="text-gray-700 hover:text-gray-700 text-2xl font-bold"
->
-  ×
-</button>
+              <button
+                onClick={() => setIsDialogOpen(false)}
+                className="text-gray-700 hover:text-gray-700 text-2xl font-bold"
+              >
+                ×
+              </button>
 
             </div>
 
@@ -300,7 +300,7 @@ const Session = () => {
               </div>
 
               <div className="flex justify-end">
-                
+
                 <button
                   type="submit"
                   className="ml-4 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
