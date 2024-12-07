@@ -25,11 +25,7 @@ public class Enseignant {
     @Column(nullable = false)
     private Boolean dispense = false;
 
-
-
-
-
-
+    // Relation ManyToOne avec Departement
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "departement_id", nullable = false)
