@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
+import { FaInfoCircle } from "react-icons/fa"; // Importation de l'icône
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faEdit, faTrash, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import EnseignantDetails from "./EnseignantDetails";  // Import du nouveau composant
 
 const Enseignants = ({ departementId, departementName, onBack }) => {
   const [enseignants, setEnseignants] = useState([]);
@@ -18,6 +20,7 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
     phoneNumber: "",
     dispense: false,
   });
+  const [selectedEnseignantId, setSelectedEnseignantId] = useState(null);  // Pour suivre l'ID de l'enseignant sélectionné
 
   const fetchEnseignants = useCallback(async () => {
     setLoading(true);
@@ -113,6 +116,10 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
     }
   };
 
+  const handleShowDetails = (id) => {
+    setSelectedEnseignantId(id);  // Ouvrir les détails de l'enseignant sélectionné
+  };
+
   const filteredEnseignants = enseignants.filter((e) =>
     `${e.firstName} ${e.lastName} ${e.email} ${e.phoneNumber}`
       .toLowerCase()
@@ -159,86 +166,93 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
             <div>Dispense</div>
             <div className="text-right">Actions</div>
           </div>
-          <div className="divide-y">
-            {filteredEnseignants.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
-                No instructors found
-              </div>
-            ) : (
-              filteredEnseignants.map((enseignant) => (
-                <div
-                  key={enseignant.id}
-                  className="grid grid-cols-6 gap-4 p-4 hover:bg-gray-50"
+          {filteredEnseignants.map((enseignant) => (
+            <div
+              key={enseignant.id}
+              className="grid grid-cols-6 gap-4 p-4 border-b"
+            >
+              <div>{enseignant.firstName}</div>
+              <div>{enseignant.lastName}</div>
+              <div>{enseignant.email}</div>
+              <div>{enseignant.phoneNumber}</div>
+              <div>{enseignant.dispense ? "Yes" : "No"}</div>
+              <div className="text-right space-x-4">
+                <button
+                  onClick={() => handleDialogOpen(enseignant)}
+                  className="text-blue-500"
                 >
-                  <div>{enseignant.firstName}</div>
-                  <div>{enseignant.lastName}</div>
-                  <div>{enseignant.email}</div>
-                  <div>{enseignant.phoneNumber}</div>
-                  <div>
-                    <input type="checkbox" checked={enseignant.dispense} readOnly />
-                  </div>
-                  <div className="text-right space-x-2">
-                    <button
-                      onClick={() => handleDialogOpen(enseignant)}
-                      className="text-blue-500 hover:text-blue-700"
-                    >
-                      <FontAwesomeIcon icon={faEdit} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(enseignant.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+                  <FontAwesomeIcon icon={faEdit} />
+                </button>
+                <button
+                  onClick={() => handleDelete(enseignant.id)}
+                  className="text-red-500"
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </button>
+                <button
+                  onClick={() => handleShowDetails(enseignant.id)}
+                  className="text-green-500"
+                >
+                  <FontAwesomeIcon icon={faMapMarkerAlt} />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
       )}
+
       {isDialogOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg w-[80%] max-w-md p-6">
-            <h2 className="text-xl font-bold mb-4">
-              {editMode ? "Edit Instructor" : "Add Instructor"}
-            </h2>
+            <h2 className="text-xl font-bold mb-4">{editMode ? "Edit" : "Add"} Instructor</h2>
             <form onSubmit={handleSave}>
               <div className="mb-4">
-                <label className="block text-gray-700">First Name</label>
+                <label className="block font-medium mb-2">First Name</label>
                 <input
                   type="text"
                   value={currentEnseignant.firstName}
                   onChange={(e) =>
-                    setCurrentEnseignant({ ...currentEnseignant, firstName: e.target.value })
+                    setCurrentEnseignant({
+                      ...currentEnseignant,
+                      firstName: e.target.value,
+                    })
                   }
-                  className="border rounded-md w-full px-4 py-2"
+                  required
+                  className="w-full border px-4 py-2 rounded-md"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Last Name</label>
+                <label className="block font-medium mb-2">Last Name</label>
                 <input
                   type="text"
                   value={currentEnseignant.lastName}
                   onChange={(e) =>
-                    setCurrentEnseignant({ ...currentEnseignant, lastName: e.target.value })
+                    setCurrentEnseignant({
+                      ...currentEnseignant,
+                      lastName: e.target.value,
+                    })
                   }
-                  className="border rounded-md w-full px-4 py-2"
+                  required
+                  className="w-full border px-4 py-2 rounded-md"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Email</label>
+                <label className="block font-medium mb-2">Email</label>
                 <input
                   type="email"
                   value={currentEnseignant.email}
                   onChange={(e) =>
-                    setCurrentEnseignant({ ...currentEnseignant, email: e.target.value })
+                    setCurrentEnseignant({
+                      ...currentEnseignant,
+                      email: e.target.value,
+                    })
                   }
-                  className="border rounded-md w-full px-4 py-2"
+                  required
+                  className="w-full border px-4 py-2 rounded-md"
                 />
               </div>
               <div className="mb-4">
-                <label className="block text-gray-700">Phone Number</label>
+                <label className="block font-medium mb-2">Phone</label>
                 <input
                   type="text"
                   value={currentEnseignant.phoneNumber}
@@ -248,31 +262,35 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
                       phoneNumber: e.target.value,
                     })
                   }
-                  className="border rounded-md w-full px-4 py-2"
+                  required
+                  className="w-full border px-4 py-2 rounded-md"
                 />
               </div>
-              <div className="mb-4 flex items-center">
+              <div className="mb-4">
+                <label className="block font-medium mb-2">Dispense</label>
                 <input
                   type="checkbox"
                   checked={currentEnseignant.dispense}
                   onChange={(e) =>
-                    setCurrentEnseignant({ ...currentEnseignant, dispense: e.target.checked })
+                    setCurrentEnseignant({
+                      ...currentEnseignant,
+                      dispense: e.target.checked,
+                    })
                   }
-                  className="mr-2"
+                  className="w-6 h-6"
                 />
-                <label className="text-gray-700">Dispense</label>
               </div>
               <div className="flex justify-end space-x-4">
                 <button
                   type="button"
                   onClick={handleDialogClose}
-                  className="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400"
+                  className="px-4 py-2 bg-gray-300 rounded-md"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-md"
                 >
                   Save
                 </button>
@@ -280,6 +298,10 @@ const Enseignants = ({ departementId, departementName, onBack }) => {
             </form>
           </div>
         </div>
+      )}
+
+      {selectedEnseignantId && (
+        <EnseignantDetails id={selectedEnseignantId} onClose={() => setSelectedEnseignantId(null)} />
       )}
     </div>
   );
