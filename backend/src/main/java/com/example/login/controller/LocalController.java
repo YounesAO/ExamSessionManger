@@ -52,4 +52,14 @@ public class LocalController {
     public List<Local> getAllLocals(){
         return localService.findAll();
     }
+
+    @PutMapping("/update")
+    public ResponseEntity<Local> updateLocal(@RequestBody Local local) {
+        try {
+            Local updatedLocal = localService.modifier(local);
+            return new ResponseEntity<>(updatedLocal, HttpStatus.OK);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
+        }
+    }
 }
