@@ -11,7 +11,7 @@ public interface ExamRepository extends JpaRepository<Exam, Long> {
 
     // Custom query method to find exams by option ID
     List<Exam> findByOptionId(Long optionId);
-
+    List<Exam> findBySessionId(Long sessionId);
     // Find exams by instructor ID
     List<Exam> findByInstructorId(Long instructorId);
 }

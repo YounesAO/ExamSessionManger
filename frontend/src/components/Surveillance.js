@@ -73,7 +73,7 @@ const Surveillance = () => {
   useEffect(() => {
     const fetchExams = async () => {
       try {
-        const response = await axios.get("/api/exams");
+        const response = await axios.get(`/api/exams/bySession/${sessionId}`);
         setExams(response.data);
         console.log("Exams fetched:", response.data);
       } catch (error) {
@@ -166,9 +166,9 @@ const Surveillance = () => {
   
       // Check for time overlap
       const isTimeOverlap =
-        (examStart <= periodEnd && examEnd >= periodStart) ||
+        (examStart < periodEnd && examEnd > periodStart) ||
         (examStart >= periodStart && examStart < periodEnd) ||
-        (examEnd > periodStart && examEnd <= periodEnd);
+        (examEnd > periodStart && examEnd < periodEnd);
   
       console.log(`Is Time Overlap: ${isTimeOverlap}`);
   

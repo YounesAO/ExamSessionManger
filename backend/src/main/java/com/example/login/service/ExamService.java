@@ -30,16 +30,21 @@ public class ExamService {
         return examRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exam not found with ID: " + id));
     }
-
+    public List<Exam> getExamsBySession(Long sessionId) {
+        return examRepository.findBySessionId(sessionId);
+}
     // Get exams by option (filière)
     public List<Exam> getExamsByOption(Long optionId) {
         return examRepository.findByOptionId(optionId);
     }
-
+    public long getExamCount() {
+        return examRepository.count();
+    }
     // Get exams by instructor (Enseignant)
     public List<Exam> getExamsByInstructor(Long instructorId) {
         return examRepository.findByInstructorId(instructorId);
     }
+
 
     // Update an exam
     public Exam updateExam(Long id, Exam updatedExam) {

@@ -5,6 +5,7 @@ import com.example.login.entity.*;
 import com.example.login.service.ExamService;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -45,6 +46,11 @@ public class ExamController {
         return ResponseEntity.ok(new ExamDTO(savedExam)); // Map the saved Exam to ExamDTO
     }
 
+    @GetMapping("/count")
+    public ResponseEntity<Long> getExamCount() {
+        return ResponseEntity.ok(examService.getExamCount());
+    }
+
     // Get all exams
     @GetMapping
     public ResponseEntity<List<Exam>> getAllExams() {
@@ -73,12 +79,22 @@ public class ExamController {
         return ResponseEntity.ok(exams);
     }
 
+    @GetMapping("/bySession/{sessionId}")
+    public ResponseEntity<List<Exam>> getExamsBySessionId(@PathVariable Long sessionId) {
+        List<Exam> exams = examService.getExamsBySession(sessionId);
+        if (exams.isEmpty()) {
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        return new ResponseEntity<>(exams, HttpStatus.OK);
+}
     // Update an exam
     @PutMapping("/{id}")
     public ResponseEntity<Exam> updateExam(@PathVariable Long id, @RequestBody Exam updatedExam) {
         Exam exam = examService.updateExam(id, updatedExam);
         return ResponseEntity.ok(exam);
     }
+
+
 
     // Delete an exam
     @DeleteMapping("/{id}")
