@@ -15,16 +15,16 @@ const LoginPage = () => {
         password: loginPassword,
       });
 
-      const { message, status } = response.data;
+      const { token } = response.data;
 
-      if (status) {
-        setMessage(message);
-        navigate("/Session");
+      if (token) {
+        localStorage.setItem("jwtToken", token); // Store token securely
+        navigate("/Session"); // Redirect to session page
       } else {
-        setMessage(message);
+        setMessage("Login failed: Invalid credentials.");
       }
     } catch (error) {
-      setMessage(`Login failed: ${error.response?.data?.message || error.message}`);
+      setMessage(`Login failed: ${error.response?.data?.error || error.message}`);
     }
   };
 
@@ -33,7 +33,7 @@ const LoginPage = () => {
       <div className="bg-white p-8 rounded-md shadow-md w-full max-w-md">
         <h1 className="text-2xl font-semibold text-center mb-4">Connexion</h1>
         <p className="text-center text-gray-500 mb-6">
-          Entrez votre adresse e-mail ci-dessous pour créer votre compte
+          Entrez votre adresse e-mail ci-dessous pour vous connecter
         </p>
 
         <div className="mb-4">
@@ -68,7 +68,7 @@ const LoginPage = () => {
           onClick={handleLogin}
           className="w-full bg-blue-900 text-white py-3 rounded-md hover:bg-blue-800 transition"
         >
-          Se connecter avec l'email
+          Se connecter
         </button>
 
         <p className="text-center text-sm text-gray-500 mt-4">

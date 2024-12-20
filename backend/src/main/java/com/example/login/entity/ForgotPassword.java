@@ -23,10 +23,8 @@ public class ForgotPassword {
     private Integer otp;
 
     @Column(nullable = false)
-    private Date exirationTime;
+    private Date expirationTime; // Fixed typo
 
     @OneToOne
     private User user;
-
-
 }

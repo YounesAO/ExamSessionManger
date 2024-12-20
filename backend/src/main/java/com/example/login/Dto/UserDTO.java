@@ -1,7 +1,5 @@
 package com.example.login.Dto;
 
-
-
 public class UserDTO {
 
     private int id;

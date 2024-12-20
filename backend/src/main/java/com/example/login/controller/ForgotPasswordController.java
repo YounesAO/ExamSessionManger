@@ -18,6 +18,9 @@ import java.util.Date;
 import java.util.Objects;
 import java.util.Random;
 
+
+
+
 @RestController
 @RequestMapping("/forgotPassword")
 public class ForgotPasswordController {
@@ -34,42 +37,42 @@ public class ForgotPasswordController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    //send email for email verification
-    @PostMapping("/verfication/{email}")
-    public ResponseEntity<String> verfication(@PathVariable String email) {
+    // Send email for email verification
+    @PostMapping("/verification/{email}")
+    public ResponseEntity<String> verification(@PathVariable String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(()-> new UsernameNotFoundException("please provide valide email"));
+                .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email"));
 
         int otp = otpGenerator();
-        MailBody mailbody = MailBody.builder()
+        MailBody mailBody = MailBody.builder()
                 .to(email)
-                .text("This is the OTP for your forgot password request: "+ otp)
-                .subject("OTP for forgot password request")
+                .text("This is the OTP for your forgot password request: " + otp)
+                .subject("OTP for Forgot Password Request")
                 .build();
 
         ForgotPassword fp = ForgotPassword.builder()
                 .otp(otp)
-                .exirationTime(new Date(System.currentTimeMillis()+10 * 60 * 1000))
+                .expirationTime(new Date(System.currentTimeMillis() + 10 * 60 * 1000)) // Fixed field name
                 .user(user)
                 .build();
 
-        emailService.sendSimpleMessage(mailbody);
+        emailService.sendSimpleMessage(mailBody);
         forgotPasswordRepository.save(fp);
 
-        return ResponseEntity.ok("Email send for verification!");
+        return ResponseEntity.ok("Email sent for verification!");
     }
 
     @PostMapping("/verifyOTP/{otp}/{email}")
     public ResponseEntity<String> verifyOtp(@PathVariable Integer otp, @PathVariable String email) {
         User user = userRepository.findByEmail(email)
-                .orElseThrow(()-> new UsernameNotFoundException("please provide valide email"));
+                .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email"));
 
         ForgotPassword fp = forgotPasswordRepository.findByOtpAndUser(otp, user)
-                .orElseThrow(()-> new UsernameNotFoundException("Invalide otp for this email" + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Invalid OTP for this email: " + email));
 
-        if (fp.getExirationTime().before(Date.from(Instant.now()))){
+        if (fp.getExpirationTime().before(Date.from(Instant.now()))) {
             forgotPasswordRepository.deleteById(fp.getFpid());
-            return new ResponseEntity<>("Otp has expired", HttpStatus.EXPECTATION_FAILED);
+            return new ResponseEntity<>("OTP has expired", HttpStatus.EXPECTATION_FAILED);
         }
 
         forgotPasswordRepository.deleteById(fp.getFpid());
@@ -81,8 +84,8 @@ public class ForgotPasswordController {
             @RequestBody ChangePassword changePassword,
             @PathVariable String email) {
 
-        if(!Objects.equals(changePassword.password(), changePassword.repeatPassword())){
-            return new ResponseEntity<>("Please enter the password again!", HttpStatus.EXPECTATION_FAILED);
+        if (!Objects.equals(changePassword.password(), changePassword.repeatPassword())) {
+            return new ResponseEntity<>("Passwords do not match!", HttpStatus.EXPECTATION_FAILED);
         }
 
         String encodedPassword = passwordEncoder.encode(changePassword.password());
@@ -91,10 +94,8 @@ public class ForgotPasswordController {
         return ResponseEntity.ok("Password has been changed");
     }
 
-
-
-    private Integer otpGenerator(){
+    private Integer otpGenerator() {
         Random random = new Random();
-        return random.nextInt(100_000,999_999);
+        return random.nextInt(100_000, 999_999);
     }
 }

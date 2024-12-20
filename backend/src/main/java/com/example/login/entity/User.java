@@ -1,38 +1,41 @@
 package com.example.login.entity;
 
-
 import jakarta.persistence.*;
 
 @Entity
-@Table(name="user")
+@Table(name = "user")
 public class User {
 
     @Id
-    @Column(name="id", length = 45)
+    @Column(name = "id", length = 45)
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(name="username", length = 255)
+    @Column(name = "username", length = 255)
     private String username;
 
-    @Column(name="email", length = 255)
+    @Column(name = "email", length = 255)
     private String email;
 
-    @Column(name="password", length = 255)
+    @Column(name = "password", length = 255)
     private String password;
 
-    @OneToOne(mappedBy= "user")
+    @OneToOne(mappedBy = "user")
     private ForgotPassword forgotPassword;
 
-    public User(int id, String username, String email, String password) {
-        this.id = id;
+    // Constructor for user without email (for registration)
+    public User(String username, String email, String password) {
         this.username = username;
-        this.email = email;
         this.password = password;
+        this.email = email;
     }
 
+    // Default constructor
     public User() {
     }
+
+
+    // Getters and setters
 
     public int getId() {
         return id;
