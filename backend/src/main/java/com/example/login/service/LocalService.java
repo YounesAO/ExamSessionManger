@@ -39,6 +39,14 @@ public class LocalService {
         return localRepository.count() ;
     }
 
+    public Local modifier(Local local) {
+        if (localRepository.existsById((int)local.getId())) {
+            return localRepository.save(local);
+        } else {
+            throw new IllegalArgumentException("Local avec l'ID " + local.getId() + " n'existe pas.");
+        }
+    }
+
 
 
 }

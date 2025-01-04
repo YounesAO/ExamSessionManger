@@ -42,7 +42,7 @@ const Locaux = () => {
     if (!selectedLocal) return;
 
     try {
-      await axios.put(`http://localhost:8088/locals/update/${selectedLocal.id}`, newLocal);
+      await axios.put(`http://localhost:8088/locals/update`, newLocal);
       fetchLocals();
       setIsEditDialogOpen(false);
       setSelectedLocal(null);

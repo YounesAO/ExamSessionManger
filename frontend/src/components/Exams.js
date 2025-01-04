@@ -17,7 +17,7 @@ const ExamSchedule = () => {
   const [timeSlots, setTimeSlots] = useState([]);
   const [examDays, setExamDays] = useState([]);
 
-  const sessionId = 1;
+  const sessionId = localStorage.getItem('sessionid');
 
   useEffect(() => {
     fetchDepartments();

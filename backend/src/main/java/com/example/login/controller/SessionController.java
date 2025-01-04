@@ -79,19 +79,19 @@ public class SessionController {
             List<Map<String, String>> timeSlots = new ArrayList<>();
             timeSlots.add(Map.of(
                     "id", "1",
-                    "time", formatTimeRange(session.getExam1Start(), LocalTime.of(10, 0)) // Example end time
+                    "time", formatTimeRange(session.getExam1Start(),session.getExam1End()) // Example end time
             ));
             timeSlots.add(Map.of(
                     "id", "2",
-                    "time", formatTimeRange(session.getExam2Start(), session.getExam2Start().plusMinutes(90)) // Calculate dynamically
+                    "time", formatTimeRange(session.getExam2Start(), session.getExam2End()) // Calculate dynamically
             ));
             timeSlots.add(Map.of(
                     "id", "3",
-                    "time", formatTimeRange(session.getExam3Start(), session.getExam3Start().plusMinutes(90))
+                    "time", formatTimeRange(session.getExam3Start(), session.getExam3End())
             ));
             timeSlots.add(Map.of(
                     "id", "4",
-                    "time", formatTimeRange(session.getExam4Start(), session.getExam4Start().plusMinutes(90))
+                    "time", formatTimeRange(session.getExam4Start(), session.getExam4End())
             ));
 
             // Define the formatter for the desired display format

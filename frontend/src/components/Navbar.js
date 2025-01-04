@@ -115,7 +115,7 @@ const Navbar = () => {
               {/* Email */}
               <div className="px-4 py-3">
                 <span className="block text-sm text-gray-900 dark:text-white">
-                  admin@gmail.com
+                miskaraminaa@gmail.com
                 </span>
               </div>
 

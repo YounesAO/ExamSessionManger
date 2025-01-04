@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Module from "./Module";
 import Navbar from "./Navbar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTimes } from "@fortawesome/free-solid-svg-icons";
 
 const Options = () => {
   const [options, setOptions] = useState([]);
@@ -11,7 +13,7 @@ const Options = () => {
   const [editOption, setEditOption] = useState(null);
   const [filter, setFilter] = useState("");
   const [selectedOption, setSelectedOption] = useState(null);
-  const [error, setError] = useState("");  // State to capture error messages
+  const [error, setError] = useState("");
 
   const apiBaseUrl = "http://localhost:8088/api/options";
 
@@ -38,10 +40,10 @@ const Options = () => {
     try {
       const newOption = { name: newOptionName };
       await axios.post(apiBaseUrl, newOption);
-      fetchOptions(); // Refresh options list
+      fetchOptions();
       setNewOptionName("");
       setIsDialogOpen(false);
-      setError("");  // Clear any previous errors
+      setError("");
     } catch (error) {
       console.error("Error adding option:", error);
       setError("Failed to add option. Please try again.");
@@ -56,10 +58,10 @@ const Options = () => {
     }
     try {
       await axios.put(`${apiBaseUrl}/${editOption.id}`, editOption);
-      fetchOptions(); // Refresh options list
+      fetchOptions();
       setEditOption(null);
       setIsEditDialogOpen(false);
-      setError("");  // Clear any previous errors
+      setError("");
     } catch (error) {
       console.error("Error editing option:", error);
       setError("Failed to edit option. Please try again.");
@@ -70,7 +72,7 @@ const Options = () => {
     if (window.confirm("Are you sure you want to delete this option?")) {
       try {
         await axios.delete(`${apiBaseUrl}/${id}`);
-        fetchOptions(); // Refresh options list
+        fetchOptions();
       } catch (error) {
         console.error("Error deleting option:", error);
         setError("Failed to delete option. Please try again.");
@@ -91,31 +93,25 @@ const Options = () => {
             <div className="flex justify-between items-center mb-8">
               <div>
                 <h1 className="text-xl font-semibold text-gray-900">Options</h1>
-                <p className="text-sm text-gray-500">Manage departments</p>
+                <p className="text-sm text-gray-500">Manage options</p>
               </div>
               <button
                 onClick={() => setIsDialogOpen(true)}
-                className="px-4 py-2 bg-black text-white rounded-md"
+                className="inline-flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 focus:outline-none"
               >
-                + Add New Option
+                <span className="mr-2">+</span> Add New Option
               </button>
             </div>
 
             <div className="mb-6">
               <input
                 type="text"
-                className="w-full px-4 py-2 border border-gray-200 rounded-md focus:outline-none"
+                className="w-full px-4 py-2 border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Search"
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
               />
             </div>
-
-            {error && (
-              <div className="text-red-500 mb-4">
-                <strong>{error}</strong>
-              </div>
-            )}
 
             <div className="bg-white rounded-lg shadow">
               <div className="grid grid-cols-3 gap-4 p-4 text-sm font-medium text-gray-500 border-b">
@@ -167,7 +163,13 @@ const Options = () => {
         {/* Add Dialog */}
         {isDialogOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="bg-white p-6 rounded-lg shadow-lg relative">
+              <button
+                onClick={() => setIsDialogOpen(false)}
+                className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+              >
+                <FontAwesomeIcon icon={faTimes} size="lg" />
+              </button>
               <h2 className="text-lg font-bold mb-4">Add Option</h2>
               <form onSubmit={handleAddOption}>
                 <input
@@ -179,13 +181,9 @@ const Options = () => {
                 />
                 <div className="flex justify-end">
                   <button
-                    type="button"
-                    className="px-4 py-2 bg-gray-300 mr-2"
-                    onClick={() => setIsDialogOpen(false)}
+                    type="submit"
+                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
                   >
-                    Cancel
-                  </button>
-                  <button type="submit" className="px-4 py-2 bg-black text-white">
                     Add
                   </button>
                 </div>
@@ -197,29 +195,28 @@ const Options = () => {
         {/* Edit Dialog */}
         {isEditDialogOpen && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-6 rounded-lg shadow-lg">
+            <div className="bg-white p-6 rounded-lg shadow-lg relative">
+              <button
+                onClick={() => setIsEditDialogOpen(false)}
+                className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 focus:outline-none"
+              >
+                <FontAwesomeIcon icon={faTimes} size="lg" />
+              </button>
               <h2 className="text-lg font-bold mb-4">Edit Option</h2>
               <form onSubmit={handleEditOption}>
                 <input
                   type="text"
                   className="w-full px-4 py-2 border rounded-md mb-4"
-                  value={editOption.name || ""}
+                  value={editOption?.name || ""}
                   onChange={(e) =>
                     setEditOption({ ...editOption, name: e.target.value })
                   }
                 />
                 <div className="flex justify-end">
                   <button
-                    type="button"
-                    className="px-4 py-2 bg-gray-300 mr-2"
-                    onClick={() => {
-                      setEditOption(null);
-                      setIsEditDialogOpen(false);
-                    }}
+                    type="submit"
+                    className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
                   >
-                    Cancel
-                  </button>
-                  <button type="submit" className="px-4 py-2 bg-black text-white">
                     Save
                   </button>
                 </div>

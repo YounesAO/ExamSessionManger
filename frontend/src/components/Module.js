@@ -1,175 +1,218 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEdit, faTrash, faTimes } from "@fortawesome/free-solid-svg-icons";
 
-const Module = ({ optionId }) => {
-    const [modules, setModules] = useState([]); // Ensure it's initialized as an array
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
-    const [isEditing, setIsEditing] = useState(false);
-    const [currentModule, setCurrentModule] = useState(null);
-    const [form, setForm] = useState({ name: "", optionId: optionId || "" });
+const Modules = ({ optionId, optionName, onBack }) => {
+  const [modules, setModules] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [currentModule, setCurrentModule] = useState({
+    id: null,
+    name: "",
+    option: { id: optionId },
+  });
 
-    const fetchModules = useCallback(async () => {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await axios.get(`http://localhost:8088/api/modules/byOption/${optionId}`);
+  useEffect(() => {
+    if (optionId) {
+      fetchModules();
+    }
+  }, [optionId]);
 
-            // Affichage de la réponse pour débogage
-            console.log(response.data);
+  const fetchModules = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axios.get(
+        `http://localhost:8088/api/modules/byOption/${optionId}`
+      );
+      setModules(response.data || []); // Ensure modules is always an array
+    } catch (err) {
+      console.error("Error fetching modules:", err);
+      setError("Failed to load modules. Please try again later.");
+      setModules([]); // Ensure modules is always an array
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            // Vérifier si la réponse est bien un tableau
-            if (Array.isArray(response.data)) {
-                setModules(response.data);
-           
-            }
-        } catch (err) {
-            // Capture des erreurs spécifiques
-            setError("Unable to fetch modules. Please try again later.");
-            console.error(err); // Log de l'erreur
-        } finally {
-            setLoading(false);
-        }
-    }, [optionId]);
+  const handleSearch = (e) => {
+    setSearchQuery(e.target.value.toLowerCase());
+  };
 
-    useEffect(() => {
-        fetchModules();
-    }, [optionId, fetchModules]);
-
-    const handleInputChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
-    };
-
-    const handleAddModule = async () => {
-        if (!form.name.trim()) {
-            setError("Module name cannot be empty.");
-            return;
-        }
-        setLoading(true);
-        try {
-            const response = await axios.post("http://localhost:8088/api/modules", {
-                name: form.name,
-                option: { id: form.optionId },
-            });
-            setModules([...modules, response.data]);
-            setForm({ name: "", optionId: form.optionId });
-        } catch (err) {
-            setError("Failed to add the module.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleEditModule = async () => {
-        if (!form.name.trim()) {
-            setError("Module name cannot be empty.");
-            return;
-        }
-        setLoading(true);
-        try {
-            const response = await axios.put(
-                `http://localhost:8088/api/modules/${currentModule.id}`,
-                { name: form.name, option: { id: form.optionId } }
-            );
-            setModules(
-                modules.map((module) =>
-                    module.id === currentModule.id ? response.data : module
-                )
-            );
-            setIsEditing(false);
-            setCurrentModule(null);
-            setForm({ name: "", optionId: form.optionId });
-        } catch (err) {
-            setError("Failed to update the module.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleDeleteModule = async (id) => {
-        setLoading(true);
-        try {
-            await axios.delete(`http://localhost:8088/api/modules/${id}`);
-            setModules(modules.filter((module) => module.id !== id));
-        } catch (err) {
-            setError("Failed to delete the module.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleEditClick = (module) => {
-        setIsEditing(true);
-        setCurrentModule(module);
-        setForm({ name: module.name, optionId: module.option.id });
-    };
-
-    return (
-        <div className="p-6 max-w-7xl mx-auto">
-            <h1 className="text-2xl font-bold mb-4">Modules</h1>
-            {error && <p className="text-red-500 mb-4">{error}</p>}
-
-            <div className="bg-gray-100 p-4 rounded-lg mb-4">
-                <h2 className="text-xl font-semibold mb-2">
-                    {isEditing ? "Edit Module" : "Add Module"}
-                </h2>
-                <input
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={handleInputChange}
-                    placeholder="Module Name"
-                    className="p-2 border rounded mb-2"
-                />
-                <button
-                    onClick={isEditing ? handleEditModule : handleAddModule}
-                    className="bg-blue-500 text-white px-4 py-2 rounded"
-                    disabled={loading}
-                >
-                    {isEditing ? "Update" : "Add"}
-                </button>
-                {isEditing && (
-                    <button
-                        onClick={() => {
-                            setIsEditing(false);
-                            setForm({ name: "", optionId: form.optionId });
-                        }}
-                        className="bg-gray-500 text-white px-4 py-2 ml-2 rounded"
-                    >
-                        Cancel
-                    </button>
-                )}
-            </div>
-
-            {loading ? (
-                <p>Loading...</p>
-            ) : (
-                <div className="grid gap-4">
-                    {modules.length > 0 ? (
-                        modules.map((module) => (
-                            <div key={module.id} className="border p-4 rounded-lg">
-                                <p>{module.name}</p>
-                                <button
-                                    onClick={() => handleEditClick(module)}
-                                    className="bg-yellow-500 text-white px-2 py-1 rounded"
-                                >
-                                    Edit
-                                </button>
-                                <button
-                                    onClick={() => handleDeleteModule(module.id)}
-                                    className="bg-red-500 text-white px-2 py-1 rounded ml-2"
-                                >
-                                    Delete
-                                </button>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No modules available.</p>
-                    )}
-                </div>
-            )}
-        </div>
+  const handleDialogOpen = (module = null) => {
+    setEditMode(!!module);
+    setCurrentModule(
+      module || {
+        id: null,
+        name: "",
+        option: { id: optionId },
+      }
     );
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogClose = () => {
+    setIsDialogOpen(false);
+    setCurrentModule({
+      id: null,
+      name: "",
+      option: { id: optionId },
+    });
+  };
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      const moduleData = { ...currentModule, option: { id: optionId } };
+      if (editMode) {
+        await axios.put(
+          `http://localhost:8088/api/modules/${currentModule.id}`,
+          moduleData
+        );
+      } else {
+        await axios.post("http://localhost:8088/api/modules", moduleData);
+      }
+      fetchModules();
+      handleDialogClose();
+    } catch (err) {
+      console.error("Error saving module:", err);
+      setError("An error occurred while saving the module. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (window.confirm("Are you sure you want to delete this module?")) {
+      setLoading(true);
+      try {
+        await axios.delete(`http://localhost:8088/api/modules/${id}`);
+        fetchModules();
+      } catch (err) {
+        console.error("Error deleting module:", err);
+        setError("An error occurred while deleting the module.");
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
+
+  const filteredModules = modules.filter((m) =>
+    m.name.toLowerCase().includes(searchQuery)
+  );
+
+  return (
+    <div className="p-6 max-w-7xl mx-auto">
+      <button onClick={onBack} className="mb-4 text-blue-600 hover:underline">
+        Back to Options
+      </button>
+      <div className="flex justify-between items-center mb-4">
+        <h1 className="text-xl font-semibold">
+          {optionName} - Modules ({filteredModules.length})
+        </h1>
+        <div className="flex items-center space-x-4">
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={handleSearch}
+            className="border rounded-md px-4 py-2"
+          />
+          <button
+            onClick={() => handleDialogOpen()}
+            className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+          >
+            + Add Module
+          </button>
+        </div>
+      </div>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+      {loading ? (
+        <div className="flex justify-center items-center h-32">
+          <p>Loading...</p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-lg shadow">
+          <div className="grid grid-cols-2 gap-4 p-4 border-b font-medium">
+            <div>Name</div>
+            <div className="text-right">Actions</div>
+          </div>
+          <div className="divide-y">
+            {filteredModules.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">No modules found</div>
+            ) : (
+              filteredModules.map((module) => (
+                <div
+                  key={module.id}
+                  className="grid grid-cols-2 gap-4 p-4 hover:bg-gray-50"
+                >
+                  <div>{module.name}</div>
+                  <div className="text-right space-x-2">
+                    <button
+                      onClick={() => handleDialogOpen(module)}
+                      className="text-blue-500 hover:text-blue-700"
+                    >
+                      <FontAwesomeIcon icon={faEdit} />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(module.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <FontAwesomeIcon icon={faTrash} />
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {isDialogOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg w-[80%] max-w-md p-6 relative">
+            {/* Close button */}
+            <button
+              onClick={handleDialogClose}
+              className="absolute top-2 right-2 text-gray-600 hover:text-gray-900"
+            >
+              <FontAwesomeIcon icon={faTimes} size="lg" />
+            </button>
+            <h2 className="text-xl font-bold mb-4">
+              {editMode ? "Edit Module" : "Add Module"}
+            </h2>
+            <form onSubmit={handleSave} className="space-y-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Name:</label>
+                <input
+                  type="text"
+                  value={currentModule.name}
+                  onChange={(e) =>
+                    setCurrentModule({ ...currentModule, name: e.target.value })
+                  }
+                  required
+                  className="border rounded-md w-full px-3 py-2"
+                />
+              </div>
+              <div className="text-right">
+                <button
+                  type="submit"
+                  className="px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800"
+                >
+                  {editMode ? "Save Changes" : "Add Module"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
 };
 
-export default Module;
+export default Modules;

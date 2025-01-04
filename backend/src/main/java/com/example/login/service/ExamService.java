@@ -1,9 +1,11 @@
 package com.example.login.service;
 
 import com.example.login.entity.Exam;
+import com.example.login.entity.Session;
 import com.example.login.repository.ExamRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,16 +32,21 @@ public class ExamService {
         return examRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Exam not found with ID: " + id));
     }
-
+    public List<Exam> getExamsBySession(Long sessionId) {
+        return examRepository.findBySessionId(sessionId);
+}
     // Get exams by option (filière)
     public List<Exam> getExamsByOption(Long optionId) {
         return examRepository.findByOptionId(optionId);
     }
-
+    public long getExamCount() {
+        return examRepository.count();
+    }
     // Get exams by instructor (Enseignant)
     public List<Exam> getExamsByInstructor(Long instructorId) {
         return examRepository.findByInstructorId(instructorId);
     }
+
 
     // Update an exam
     public Exam updateExam(Long id, Exam updatedExam) {
@@ -61,4 +68,6 @@ public class ExamService {
         Exam exam = getExamById(id);
         examRepository.delete(exam);
     }
+
+
 }

@@ -17,14 +17,18 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [enseignantsResponse, departementsResponse] = await Promise.all([
+        const [examsResponse,enseignantsResponse,recentExamsResponse,  departementsResponse] = await Promise.all([
+          axios.get("http://localhost:8088/api/exams/count"),
           axios.get("http://localhost:8088/enseignants/count"), // Replace with your actual enseignant count endpoint
+          axios.get("http://localhost:8088/api/exams"),
           axios.get("http://localhost:8088/departements/count"), // Replace with your actual departement count endpoint
         ]);
 
         setData((prevData) => ({
           ...prevData,
+          exams: examsResponse.data || 0,
           teachers: enseignantsResponse.data || 0,
+          recentExams: recentExamsResponse.data || [],
           departments: departementsResponse.data || 0,
         }));
       } catch (error) {
@@ -89,14 +93,14 @@ const Dashboard = () => {
           {/* Recent Exams */}
           <div className="bg-white shadow rounded-lg p-4">
             <h3 className="text-lg font-medium text-gray-600 mb-4">
-              Exams récentes
+              Examens récentes
             </h3>
             <ul className="divide-y divide-gray-200">
               {data.recentExams.length > 0 ? (
                 data.recentExams.map((exam, index) => (
                   <li key={index} className="py-3">
                     <div className="flex items-center justify-between">
-                      <p className="text-gray-800">{exam.subject || "N/A"}</p>
+                      <p className="text-gray-800">{exam.name || "N/A"}</p>
                       <p className="text-sm text-gray-500">{exam.date}</p>
                     </div>
                   </li>

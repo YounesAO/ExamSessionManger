@@ -31,6 +31,7 @@ public class Surveillance {
 
     @Column(nullable = false)
     private boolean isReservist;
-
+    @Column(nullable = false)
+    private String role;
     // Getters and setters
 }

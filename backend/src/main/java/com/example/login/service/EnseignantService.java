@@ -30,6 +30,10 @@ public class EnseignantService {
         return enseignantRepository.findByFirstName(firstName);
     }
 
+    public Enseignant findByLastName(String lastName) {
+        return enseignantRepository.findOneByLastName(lastName);
+    }
+
     // Fetch enseignants by last name
     public List<Enseignant> getEnseignantsByLastName(String lastName) {
         return enseignantRepository.findByLastName(lastName);

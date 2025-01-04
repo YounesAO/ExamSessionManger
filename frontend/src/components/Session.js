@@ -88,6 +88,8 @@ const Session = () => {
 
   const handleSessionClick = (session) => {
     navigate('/Dashboard', { state: { session } });
+    localStorage.setItem('sessionid', session.id);
+
   };
 
 
