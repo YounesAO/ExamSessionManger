@@ -54,8 +54,8 @@ Ce projet vise à automatiser ce processus en offrant une interface intuitive po
 Cloner le dépôt Git en local :
 
 ```bash
-git clone https://github.com/votre-utilisateur/projet-surveillance.git
-cd projet-surveillance
+git clone https://github.com/YounesAO/ExamSessionManger.git
+cd ExamSessionManger
 ```
 
 ### **Étape 2 : Configurer le backend**
@@ -123,7 +123,6 @@ cd projet-surveillance
 - **Création et gestion des sessions d’examens** avec planification automatique.
 - **Attribution automatique des surveillants** en fonction des disponibilités.
 - **Surveillance en temps réel** des sessions d’examens avec mises à jour dynamiques.
-- **Importation d'emplois du temps** sous format Excel.
 - **Affichage des statistiques et graphiques analytiques**.
 - **Gestion des locaux et des ressources** pour les examens.
 
