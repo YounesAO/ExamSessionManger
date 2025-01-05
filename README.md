@@ -153,10 +153,12 @@ Si vous souhaitez contribuer à ce projet :
 	
 - **Contact** : aya.elabidi@yahoo.com
 
----- **Nom du développeur** :  HARATI AYOUB	
+---
+- **Nom du développeur** :  HARATI AYOUB	
 - **Contact** : ayoubharati987@gmail.com
 
----- **Nom du développeur** :   AIT OUAHDA YOUNES		
+---
+- **Nom du développeur** :   AIT OUAHDA YOUNES		
 - **Contact** : Younes.aitouahda@gmail.com
 
 ---
