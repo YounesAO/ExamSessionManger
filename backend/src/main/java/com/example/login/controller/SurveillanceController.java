@@ -25,6 +25,8 @@ public class SurveillanceController {
      */
     @GetMapping("/session/{sessionId}")
     public ResponseEntity<List<SurveillanceDTO>> getSurveillancesForSession(@PathVariable Long sessionId) {
+
+        surveillanceService.deleteBySessionId(sessionId);
         List<SurveillanceDTO> surveillances = surveillanceService.assignSurveillanceForSession(sessionId);
         return ResponseEntity.ok(surveillances);
     }

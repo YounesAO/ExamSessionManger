@@ -56,7 +56,7 @@ const Session = () => {
     }
     try {
       if (isEditMode && selectedSession) {
-        await axios.put(`http://localhost:8088/api/sessions/${selectedSession.id}, newSession`);
+        await axios.put(`http://localhost:8088/api/sessions/${selectedSession.id}`, newSession);
       } else {
         await axios.post('http://localhost:8088/api/sessions', newSession);
       }

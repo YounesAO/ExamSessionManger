@@ -29,6 +29,12 @@ public class SurveillanceService {
     @Autowired
     private ExamRepository examRepository;
 
+
+    public void deleteBySessionId(Long sessionId) {
+        surveillanceRepository.deleteBySessionId(sessionId);
+    }
+    
+
     public List<SurveillanceDTO> assignSurveillanceForSession(Long sessionId) {
         // Fetch all exams for the given session
         List<Exam> exams = examRepository.findBySessionId(sessionId);

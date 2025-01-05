@@ -1,30 +1,50 @@
-
 # **Projet de Surveillance des Examens**
 
 ## **Description du projet**
-Ce projet est une application web conçue pour gérer les surveillances des examens au sein d'une école ou université. Il permet d'afficher les surveillances par département, les enseignants assignés à chaque période, et les informations détaillées des sessions d'examens.
+Ce projet est une application web conçue pour gérer les surveillances des examens au sein d'une école ou université. 
+Il permet d'afficher les surveillances par département, les enseignants assignés à chaque période, et les informations détaillées des sessions d'examens.
+L'application facilite également la gestion des emplois du temps, l'affectation des surveillants et la gestion des départements.
+
+---
+
+## **Motivation du projet**
+La surveillance des examens est une tâche critique qui nécessite une gestion efficace des enseignants, des salles et des horaires.
+Ce projet vise à automatiser ce processus en offrant une interface intuitive pour visualiser, planifier et organiser les sessions d'examens de manière optimale.
 
 ---
 
 ## **Technologies utilisées**
 
 ### **Frontend**
-- **React.js** : Une bibliothèque JavaScript utilisée pour construire l'interface utilisateur interactive et dynamique.
-- **Lucide-React** : Une bibliothèque d'icônes pour embellir l'interface.
-- **Tailwind CSS** : Utilisé pour le stylisme des composants, afin de rendre l'interface élégante et réactive.
+- **React.js** : Bibliothèque JavaScript utilisée pour construire l'interface utilisateur interactive et dynamique.
+- **React Router** : Gestionnaire de navigation pour créer des routes dynamiques.
+- **Lucide-React** : Bibliothèque d'icônes pour embellir l'interface.
+- **Chart.js** : Utilisé pour afficher des graphiques analytiques sur les sessions et les surveillances.
+- **Tailwind CSS** : Utilisé pour styliser les composants et garantir une interface réactive.
 
 ### **Backend**
 - **Spring Boot** : Framework Java utilisé pour développer l'API REST du backend.
+- **Spring Security** : Sécurisation de l'application et gestion de l'authentification des utilisateurs.
 - **Hibernate (JPA)** : Pour la gestion de la persistance des données.
 - **MySQL** : Base de données relationnelle pour stocker les données des enseignants, sessions d'examens, surveillances, etc.
 
 ---
 
-## **Prérequis**
-Avant de commencer, assurez-vous d'avoir installé les outils suivants :
-- **Node.js** et **npm** (pour exécuter le frontend React.js)
-- **Java JDK 11 ou supérieur** (pour exécuter l'application Spring Boot)
-- **MySQL** (pour configurer la base de données)
+## **Structure du projet**
+
+### **Frontend (React.js)**
+- **Authentification des utilisateurs** (Login, mot de passe oublié, réinitialisation).
+- **Tableau de bord interactif** affichant des statistiques et graphiques.
+- **Gestion des examens** : Création, suppression et modification des sessions d'examen.
+- **Gestion des enseignants** : Affichage, ajout et mise à jour des enseignants.
+- **Surveillance des examens** : Attribution des surveillants aux salles et gestion des horaires.
+- **Importation d'emplois du temps** via des fichiers Excel.
+
+### **Backend (Spring Boot)**
+- **API REST sécurisée** avec JWT pour gérer les utilisateurs, enseignants, sessions et surveillances.
+- **Gestion des examens** (CRUD pour les examens, enseignants et salles).
+- **Envoi d'e-mails** pour la récupération de mot de passe.
+- **Génération de rapports et statistiques**.
 
 ---
 
@@ -48,7 +68,7 @@ cd projet-surveillance
    ```
 
 2. **Configurer les paramètres du backend** :  
-   Ouvrez le fichier `application.properties` situé dans le dossier `backend/src/main/resources` et mettez à jour les paramètres suivants :
+   Ouvrez le fichier `application.properties` et mettez à jour les paramètres suivants :
    ```properties
    spring.datasource.url=jdbc:mysql://localhost:3306/surveillance_db
    spring.datasource.username=VOTRE_UTILISATEUR
@@ -56,30 +76,25 @@ cd projet-surveillance
    ```
 
 3. **Lancer le backend** :  
-   Accédez au dossier `backend` et exécutez la commande suivante :
    ```bash
    mvn spring-boot:run
    ```
    Le backend sera disponible sur `http://localhost:8088`.
 
----
-
 ### **Étape 3 : Configurer le frontend**
 
 1. **Installer les dépendances** :  
-   Accédez au dossier `frontend` et exécutez la commande suivante :
    ```bash
    npm install
    ```
 
 2. **Configurer l'URL de l'API** :  
-   Ouvrez le fichier où `axios.defaults.baseURL` est défini dans votre code React (fichier Surveillance.js) et assurez-vous que l'URL pointe vers l'API backend :
+   Ouvrez le fichier `axios.js` et assurez-vous que l'URL est correcte :
    ```javascript
    axios.defaults.baseURL = 'http://localhost:8088';
    ```
 
 3. **Lancer le frontend** :  
-   Démarrez l'application React :
    ```bash
    npm start
    ```
@@ -103,13 +118,14 @@ cd projet-surveillance
 
 ## **Fonctionnalités principales**
 
-- **Affichage des surveillances** : 
-  - Surveillances classées par département.
-  - Affichage des enseignants, des périodes d'examens et des rôles assignés (par exemple : "RR", "TT").
-- **Navigation dans les sessions d'examens** : 
-  - Naviguez sur plusieurs jours pour voir les surveillances programmées.
-- **Mise à jour dynamique des données** : 
-  - Chargement des départements, enseignants, surveillances et sessions d'examens à partir de l'API.
+- **Authentification sécurisée des utilisateurs** (Login, OTP, récupération de mot de passe).
+- **Gestion des enseignants et départements** (Ajout, modification, suppression).
+- **Création et gestion des sessions d’examens** avec planification automatique.
+- **Attribution automatique des surveillants** en fonction des disponibilités.
+- **Surveillance en temps réel** des sessions d’examens avec mises à jour dynamiques.
+- **Importation d'emplois du temps** sous format Excel.
+- **Affichage des statistiques et graphiques analytiques**.
+- **Gestion des locaux et des ressources** pour les examens.
 
 ---
 
@@ -128,13 +144,21 @@ Si vous souhaitez contribuer à ce projet :
 
 ---
 
-## **Auteurs**
-- **Nom du développeur** : [Votre nom]
-- **Contact** : [Votre email]
+## **Team**
+- **Nom du développeur** : MISKAR AMINA	
+- **Contact** : miskaraminaa@gmail.com
 
 ---
+- **Nom du développeur** :  Aya EL ABIDI
+	
+- **Contact** : aya.elabidi@yahoo.com
 
+---- **Nom du développeur** :  HARATI AYOUB	
+- **Contact** : ayoubharati987@gmail.com
+
+---- **Nom du développeur** :   AIT OUAHDA YOUNES		
+- **Contact** : Younes.aitouahda@gmail.com
+
+---
 ## **Licence**
 Ce projet est sous licence MIT. Vous pouvez l'utiliser et le modifier librement.
-
---- 

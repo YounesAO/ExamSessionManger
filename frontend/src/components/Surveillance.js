@@ -137,12 +137,25 @@ const Surveillance = () => {
       console.log("Navigated to new date range starting:", newDate);
     }
   };
-
-  const handleRefresh = () => {
-    console.log("Page refreshed");
-    window.location.reload();
+  const handleRefresh = async () => {
+    try {
+      console.log("Refreshing surveillance data...");
+  
+      // Step 1: Send a request to refresh surveillances
+      const assignResponse = await axios.get(`http://localhost:8088/api/surveillances/session/${sessionId}`
+      );
+  
+      console.log("Surveillances refreshed:", assignResponse.data);
+  
+      // Step 2: Fetch the updated surveillance data
+      const fetchResponse = await axios.get(`http://localhost:8088/api/surveillances/getData/idsession/${sessionId}`);
+  
+      setSurveillances(fetchResponse.data);
+      console.log("Updated surveillances fetched:", fetchResponse.data);
+    } catch (error) {
+      console.error("Error refreshing surveillance data:", error);
+    }
   };
-
   // Fonction pour vérifier si un enseignant a un examen à une date et une période spécifiques
   // Function to check if the teacher has an exam at a given date and period
   const hasExam = (teacherId, date, period) => {
