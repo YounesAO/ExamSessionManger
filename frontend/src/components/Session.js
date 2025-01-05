@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Edit, Trash2 } from 'lucide-react';
 
 const Session = () => {
   const [sessions, setSessions] = useState([]);
   const [sessionCount, setSessionCount] = useState(0);
+  const [selectedSession, setSelectedSession] = useState(null);
   const [newSession, setNewSession] = useState({
     sessionType: '',
     startDate: '',
@@ -19,6 +21,7 @@ const Session = () => {
     exam4End: '18:00',
   });
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [filter, setFilter] = useState('');
   const navigate = useNavigate();
 
@@ -52,29 +55,21 @@ const Session = () => {
       return;
     }
     try {
-      await axios.post('http://localhost:8088/api/sessions', newSession);
+      if (isEditMode && selectedSession) {
+        await axios.put(`http://localhost:8088/api/sessions/${selectedSession.id}, newSession`);
+      } else {
+        await axios.post('http://localhost:8088/api/sessions', newSession);
+      }
       fetchSessions();
       fetchSessionCount();
-      setNewSession({
-        sessionType: '',
-        startDate: '',
-        endDate: '',
-        exam1Start: '08:00',
-        exam1End: '10:00',
-        exam2Start: '10:00',
-        exam2End: '12:00',
-        exam3Start: '14:00',
-        exam3End: '16:00',
-        exam4Start: '16:00',
-        exam4End: '18:00',
-      });
-      setIsDialogOpen(false);
+      resetForm();
     } catch (error) {
-      console.error('Error adding session:', error);
+      console.error('Error saving session:', error);
     }
   };
 
-  const handleDeleteSession = async (sessionId) => {
+  const handleDeleteSession = async (e, sessionId) => {
+    e.stopPropagation(); // Prevent triggering row click
     if (window.confirm('Are you sure you want to delete this session?')) {
       try {
         await axios.delete(`http://localhost:8088/api/sessions/${sessionId}`);
@@ -86,12 +81,37 @@ const Session = () => {
     }
   };
 
+  const handleEditClick = (e, session) => {
+    e.stopPropagation(); // Prevent triggering row click
+    setSelectedSession(session);
+    setNewSession(session);
+    setIsEditMode(true);
+    setIsDialogOpen(true);
+  };
+
   const handleSessionClick = (session) => {
     navigate('/Dashboard', { state: { session } });
     localStorage.setItem('sessionid', session.id);
-
   };
 
+  const resetForm = () => {
+    setNewSession({
+      sessionType: '',
+      startDate: '',
+      endDate: '',
+      exam1Start: '08:00',
+      exam1End: '10:00',
+      exam2Start: '10:00',
+      exam2End: '12:00',
+      exam3Start: '14:00',
+      exam3End: '16:00',
+      exam4Start: '16:00',
+      exam4End: '18:00',
+    });
+    setSelectedSession(null);
+    setIsEditMode(false);
+    setIsDialogOpen(false);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -113,7 +133,10 @@ const Session = () => {
           <p className="text-sm text-gray-500">Gérer les sessions</p>
         </div>
         <button
-          onClick={() => setIsDialogOpen(true)}
+          onClick={() => {
+            resetForm();
+            setIsDialogOpen(true);
+          }}
           className="inline-flex items-center px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 focus:outline-none"
         >
           <span className="mr-2">+</span> Ajouter une nouvelle session
@@ -142,11 +165,25 @@ const Session = () => {
             <div
               key={session.id}
               className="grid grid-cols-4 gap-4 p-4 items-center hover:bg-gray-50 cursor-pointer"
-              onClick={() => handleSessionClick(session)} // Handle click event
+              onClick={() => handleSessionClick(session)}
             >
               <div className="text-gray-900">{session.sessionType}</div>
               <div className="text-gray-600">{session.startDate}</div>
               <div className="text-gray-600">{session.endDate}</div>
+              <div className="flex justify-end space-x-2">
+                <button
+                  onClick={(e) => handleEditClick(e, session)}
+                  className="text-blue-500 hover:text-blue-700"
+                >
+                  <Edit size={18} />
+                </button>
+                <button
+                  onClick={(e) => handleDeleteSession(e, session.id)}
+                  className="text-red-500 hover:text-red-700"
+                >
+                  <Trash2 size={18} />
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -156,14 +193,15 @@ const Session = () => {
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-white rounded-lg w-[80%] max-w-lg p-6 shadow-lg">
             <div className="flex justify-between items-center mb-6">
-              <h2 className="text-xl font-semibold">Ajouter Session</h2>
+              <h2 className="text-xl font-semibold">
+                {isEditMode ? 'Modifier Session' : 'Ajouter Session'}
+              </h2>
               <button
-                onClick={() => setIsDialogOpen(false)}
+                onClick={resetForm}
                 className="text-gray-700 hover:text-gray-700 text-2xl font-bold"
               >
                 ×
               </button>
-
             </div>
 
             <form onSubmit={handleAddSession} className="space-y-6">
@@ -302,12 +340,18 @@ const Session = () => {
               </div>
 
               <div className="flex justify-end">
-
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="px-4 py-2 text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                  Annuler
+                </button>
                 <button
                   type="submit"
                   className="ml-4 px-4 py-2 bg-black text-white rounded-md hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
-                  Creer
+                  {isEditMode ? 'Modifier' : 'Creer'}
                 </button>
               </div>
             </form>

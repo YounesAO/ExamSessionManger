@@ -7,6 +7,7 @@ import lombok.Setter;
 @Setter
 public class SurveillanceDTO {
     private Long id; // ID of the surveillance record
+    private Long enseignantId; // Add this field
     private String enseignantName; // Full name of the professor
     private String examName; // Name of the exam
     private String examDate; // Date of the exam (yyyy-MM-dd)

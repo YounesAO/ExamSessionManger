@@ -3,7 +3,6 @@ import axios from "axios";
 import Navbar from "./Navbar";
 import ChartComponent from "./ChartComponent";
 
-
 const Dashboard = () => {
   const [data, setData] = useState({
     exams: 0,
@@ -13,22 +12,27 @@ const Dashboard = () => {
     recentExams: [],
   });
 
+  const sessionId = localStorage.getItem('sessionid');
+
   // Fetch data from the backend
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [examsResponse,enseignantsResponse,recentExamsResponse,  departementsResponse] = await Promise.all([
-          axios.get("http://localhost:8088/api/exams/count"),
-          axios.get("http://localhost:8088/enseignants/count"), // Replace with your actual enseignant count endpoint
-          axios.get("http://localhost:8088/api/exams"),
-          axios.get("http://localhost:8088/departements/count"), // Replace with your actual departement count endpoint
+        const [
+          sessionExamsResponse,
+          enseignantsResponse,
+          departementsResponse,
+        ] = await Promise.all([
+          axios.get(`http://localhost:8088/api/exams/bySession/${sessionId}`),
+          axios.get("http://localhost:8088/enseignants/count"),
+          axios.get("http://localhost:8088/departements/count"),
         ]);
 
         setData((prevData) => ({
           ...prevData,
-          exams: examsResponse.data || 0,
+          exams: sessionExamsResponse.data.length || 0, // Count exams
+          recentExams: sessionExamsResponse.data || [], // List of exams
           teachers: enseignantsResponse.data || 0,
-          recentExams: recentExamsResponse.data || [],
           departments: departementsResponse.data || 0,
         }));
       } catch (error) {
@@ -86,9 +90,9 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-8">
           {/* Chart Placeholder */}
           <div className="chart">
-          <h3>Aperçu</h3>
-          <ChartComponent />
-        </div>
+            <h3>Aperçu</h3>
+            <ChartComponent />
+          </div>
 
           {/* Recent Exams */}
           <div className="bg-white shadow rounded-lg p-4">

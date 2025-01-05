@@ -8,6 +8,7 @@ axios.defaults.baseURL = 'http://localhost:8088';
 const Surveillance = () => {
   const [selectedDepartment, setSelectedDepartment] = useState("1"); // Default to the first department ID
   const [startDate, setStartDate] = useState(new Date());
+  const [surveillances, setSurveillances] = useState([]);
   const [endDate, setEndDate] = useState(new Date());
   const [departments, setDepartments] = useState([]);
   const [teachers, setTeachers] = useState([]);
@@ -83,6 +84,20 @@ const Surveillance = () => {
 
     fetchExams();
   }, []);
+
+  useEffect(() => {
+    const fetchSurveillances = async () => {
+      try {
+        const response = await axios.get(`/api/surveillances/getData/idsession/${sessionId}`);
+        setSurveillances(response.data);
+      } catch (error) {
+        console.error('Error fetching surveillances:', error);
+      }
+    };
+
+    fetchSurveillances();
+  }, [sessionId]);
+
 
   // Generate dates dynamically
   const generateDates = (start, days) => {
@@ -176,6 +191,24 @@ const Surveillance = () => {
     });
   };
 
+ 
+const normalizePeriod = (period) => {
+  // Normalize period format from "HH:mm-HH:mm" or "HH:mm:SS - HH:mm:SS" to "HH:mm - HH:mm"
+  const parts = period.replace(/\s/g, "").split("-");
+  return `${parts[0].substring(0, 5)}-${parts[1].substring(0, 5)}`;
+};
+
+  const getRole = (teacherId, date, period) => {
+    const normalizedPeriod = normalizePeriod(period);
+    const surveillance = surveillances.find(
+      (surveillance) =>
+        surveillance.enseignantId === teacherId &&
+        surveillance.examDate.trim() === date &&
+        normalizePeriod(surveillance.timeSlot.trim()) === normalizedPeriod
+    );
+    return surveillance?.role;
+  };
+  
 
 
 
@@ -278,15 +311,14 @@ const Surveillance = () => {
                   day.periods.map((time, timeIndex) => (
                     <th
                       key={`${day.date}-${timeIndex}`}
-                      className="border border-gray-300 px-4 py-2"
-                    >
-                      {time}
+                      style={{ minWidth: "100px", whiteSpace: "nowrap" }}>
+                      {normalizePeriod(time)}
                     </th>
                   ))
                 )}
               </tr>
             </thead>
-            <tbody>
+              <tbody>
               {teachers.map((teacher) => (
                 <tr key={teacher.id} className="hover:bg-gray-100">
                   <td className="border border-gray-300 px-4 py-2">
@@ -294,21 +326,44 @@ const Surveillance = () => {
                   </td>
                   {dateRange.map((day) =>
                     day.periods.map((time, timeIndex) => {
-                      const examCheck = hasExam(teacher.id, day.date, time);
-                      console.log(`Checking exam for Teacher ID: ${teacher.id}, Date: ${day.date}, Period: ${time} => ${examCheck}`);
+                      const normalizedPeriod = normalizePeriod(time);
+                      const surveillanceMatch = surveillances.find(
+                        (surveillance) =>
+                          surveillance.enseignantId === teacher.id &&
+                          surveillance.examDate.trim() === day.date &&
+                          normalizePeriod(surveillance.timeSlot.trim()) === normalizedPeriod
+                      );
+
+                      const role = surveillanceMatch?.role || "";
+                      
+                      // Define role-based styling
+                      const roleClass = (() => {
+                        switch (role) {
+                          case "RR":
+                            return "bg-red-200 text-red-800 font-bold";
+                          case "TT":
+                            return "bg-green-200 text-green-800 font-bold";
+                          default:
+                            return role ? "bg-yellow-200 text-yellow-800 font-bold" : "";
+                        }
+                      })();
+
                       return (
                         <td
                           key={`${day.date}-${timeIndex}`}
-                          className={`border border-gray-300 px-4 py-2 text-center ${examCheck ? "bg-red-200" : ""}`}
+                          className={`border border-gray-300 px-4 py-2 text-center ${roleClass}`}
                         >
-                          {examCheck ? "TT" : ""}
+                          {role || ""}
                         </td>
                       );
                     })
                   )}
                 </tr>
-              ))}
-            </tbody>
+              ))} 
+
+          </tbody>
+
+
 
           </table>
         </div>

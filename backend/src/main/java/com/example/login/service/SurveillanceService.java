@@ -19,16 +19,15 @@ import java.util.stream.Collectors;
 
 @Service
 public class SurveillanceService {
+
     @Autowired
-    private  SurveillanceRepository surveillanceRepository;
+    private SurveillanceRepository surveillanceRepository;
+
     @Autowired
+    private EnseignantRepository enseignantRepository;
 
-    private  EnseignantRepository enseignantRepository;
     @Autowired
-
-    private  ExamRepository examRepository;
-
-
+    private ExamRepository examRepository;
 
     public List<SurveillanceDTO> assignSurveillanceForSession(Long sessionId) {
         // Fetch all exams for the given session
@@ -71,8 +70,10 @@ public class SurveillanceService {
         surveillance.setEnseignant(instructor);
         surveillance.setExam(exam); // Use the persistent Exam
         surveillance.setDate(exam.getExamDate());
+        surveillance.setSession(exam.getSession());
         surveillance.setTimeSlot("TT"); // Tournant role
         surveillance.setReservist(false);
+        surveillance.setRole("TT"); // Set role explicitly
         surveillanceRepository.save(surveillance);
 
         return mapToDTO(surveillance);
@@ -83,8 +84,10 @@ public class SurveillanceService {
         surveillance.setEnseignant(enseignant);
         surveillance.setExam(exam); // Use the persistent Exam
         surveillance.setDate(exam.getExamDate());
+        surveillance.setSession(exam.getSession());
         surveillance.setTimeSlot(exam.getLocal().getNom()); // Show Local Name in Time Slot
         surveillance.setReservist(false);
+        surveillance.setRole(exam.getLocal().getNom()); // Set role explicitly (local name)
         surveillanceRepository.save(surveillance);
 
         return mapToDTO(surveillance);
@@ -101,8 +104,10 @@ public class SurveillanceService {
             surveillance.setEnseignant(reservist);
             surveillance.setExam(exam); // Use the persistent Exam
             surveillance.setDate(date);
+            surveillance.setSession(exam.getSession());
             surveillance.setTimeSlot("RR"); // Reservist role
             surveillance.setReservist(true);
+            surveillance.setRole("RR"); // Set role explicitly (Reservist)
             surveillanceRepository.save(surveillance);
 
             surveillances.add(mapToDTO(surveillance));
@@ -130,31 +135,16 @@ public class SurveillanceService {
     private SurveillanceDTO mapToDTO(Surveillance surveillance) {
         SurveillanceDTO dto = new SurveillanceDTO();
         dto.setId(surveillance.getId());
+        dto.setEnseignantId(surveillance.getEnseignant().getId()); // Set enseignantId
         dto.setEnseignantName(surveillance.getEnseignant().getFirstName() + " " + surveillance.getEnseignant().getLastName());
         dto.setExamName(surveillance.getExam().getName());
         dto.setExamDate(surveillance.getDate().toString());
         dto.setTimeSlot(surveillance.getExam().getStartTime().toString() + "-" + surveillance.getExam().getEndTime().toString()); // Time of the exam
-        dto.setRole(determineRole(surveillance));
+        dto.setRole(surveillance.getRole()); // Set role
         dto.setLocalName(surveillance.getExam().getLocal().getNom());
         dto.setNombreDesEtudiants(surveillance.getExam().getNombreDesEtudiants());
         dto.setReservist(surveillance.isReservist());
         return dto;
-    }
-
-    /**
-     * Determines the role of the professor for a surveillance assignment.
-     *
-     * @param surveillance The Surveillance entity
-     * @return The role (TT, RR, or name of the local)
-     */
-    private String determineRole(Surveillance surveillance) {
-        if ("TT".equals(surveillance.getTimeSlot())) {
-            return "TT";
-        } else if (surveillance.isReservist()) {
-            return "RR";
-        } else {
-            return surveillance.getExam().getLocal().getNom(); // Name of the local
-        }
     }
 
     private String formatTimeSlot(LocalTime startTime) {

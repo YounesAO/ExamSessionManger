@@ -23,6 +23,10 @@ public class Surveillance {
     @JoinColumn(name = "exam_id", nullable = false)
     private Exam exam;
 
+    @ManyToOne
+    @JoinColumn(name = "session_id", nullable = false)
+    private Session session;
+
     @Column(nullable = false)
     private LocalDate date; // Ensure this is LocalDate
 
